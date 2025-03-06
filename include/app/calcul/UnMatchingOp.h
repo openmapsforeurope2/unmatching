@@ -39,17 +39,8 @@ namespace calcul{
 
 	private:
 		//--
-		ign::feature::sql::FeatureStorePostgis*                  _fsProd;
-		//--
+		ign::feature::sql::FeatureStorePostgis*                  _fsEdgeW;
 		ign::feature::sql::FeatureStorePostgis*                  _fsRef;
-		//--
-		ign::feature::sql::FeatureStorePostgis*                  _fsUp;
-		//--
-		ign::feature::sql::FeatureStorePostgis*                  _fsCd;
-		//--
-		ign::feature::sql::FeatureStorePostgis*                  _fsBorder;
-		//--
-		ign::feature::sql::FeatureStorePostgis*                  _fsUpArea;
 		//--
 		epg::log::EpgLogger*                                     _logger;
 		//--
@@ -59,23 +50,28 @@ namespace calcul{
 		//--
 		bool                                                     _verbose;
 
+		//--
+		std::set<std::string>									_sAttrNameW;
+
+
 	private:
 
 		//--
 		void _init();
 
 		//--
-		void _compute() const;
+		void _compute() ;
+
 
 		//--
-		void _createAreas(
-            ign::feature::FeatureFilter const& filter,
-            ign::feature::sql::FeatureStorePostgis* fs,
-            std::set<std::string> const& sCd,
-            std::set<std::string> & sTreated,
-            ign::geometry::GeometryPtr & resultGeomPtr
-        ) const;
+		void _setListToSetAttr(
+			std::string& listAttrName,
+			std::set<std::string>& setAttrName,
+			std::string separator
+		);
 
+		//--
+		size_t _getPosCountryCode(std::string countryCodeDouble);
     };
 
 }

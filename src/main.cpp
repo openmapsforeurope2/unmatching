@@ -95,12 +95,12 @@ int main(int argc, char *argv[])
         epg::params::tools::loadParams(*themeParameters, themeParametersFile);
         if( countryCode != "" )
             themeParameters->setParameter(COUNTRY_CODE_W, ign::data::String(countryCode));
-        if( theme != "tn" && theme != "hy" && theme != "au" && theme != "ib" )
+        /*if( theme != "tn" && theme != "hy" && theme != "au" && theme != "ib" )
             IGN_THROW_EXCEPTION("unknown theme "+theme);
         themeParameters->setParameter(THEME_W, ign::data::String(theme));
         if( table == "" )
             IGN_THROW_EXCEPTION("table name not defined");
-        themeParameters->setParameter(TABLE_W, ign::data::String(table));
+        themeParameters->setParameter(TABLE_W, ign::data::String(table));*/
 
         //info de connection db
         context->loadEpgParameters( themeParameters->getValue(DB_CONF_FILE).toString() );
@@ -115,8 +115,6 @@ int main(int argc, char *argv[])
 	    // shapeLogger->setDataDirectory( context->getLogDirectory()+"/shape" );
 
         //set BDD search path
-        context->getDataBaseManager().setSearchPath(themeParameters->getValue(UP_SCHEMA).toString());
-        context->getDataBaseManager().addSchemaToSearchPath(themeParameters->getValue(REF_SCHEMA).toString());
         ome2::utils::setTableName<epg::params::EpgParametersS>(TARGET_BOUNDARY_TABLE);
         
 		logger->log(epg::log::INFO, "[START UNMATCHING PROCESS ] " + epg::tools::TimeTools::getTime());
