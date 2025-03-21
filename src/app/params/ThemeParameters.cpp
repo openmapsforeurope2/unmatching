@@ -19,7 +19,7 @@ namespace params{
 		_initParameter(WORKING_SCHEMA, "WORKING_SCHEMA");
 		_initParameter(REF_SCHEMA, "REF_SCHEMA");
 		_initParameter(EDGE_TABLE_INIT, "EDGE_TABLE_INIT"); 
-		_initParameter(TABLE_REF_SUFFIX, "TABLE_REF_SUFFIX");
+		_initParameter(TABLE_REF_NAME, "TABLE_REF_NAME");
 		_initParameter(COUNTRY_CODE_W, "COUNTRY_CODE_W");
 		_initParameter(NAT_ID_NAME, "NAT_ID_NAME");
 		//_initParameter(LIST_ATTR_JSON, "LIST_ATTR_JSON");

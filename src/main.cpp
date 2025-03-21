@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         ("help", "produce help message")
         ("c" , po::value< std::string >(&epgParametersFile)     , "conf file" )
         ("T" , po::value< std::string >(&theme)                 , "theme" )
-        ("t" , po::value< std::string >(&table)                 , "table" )
+        //("t" , po::value< std::string >(&table)                 , "table" )
         ("cc" , po::value< std::string >(&countryCode)          , "country code" )
 		("sp", po::value< std::string >(&stepCode), OperatorDetail.str().c_str())
     ;
@@ -115,7 +115,12 @@ int main(int argc, char *argv[])
 	    // shapeLogger->setDataDirectory( context->getLogDirectory()+"/shape" );
 
         //set BDD search path
-        ome2::utils::setTableName<epg::params::EpgParametersS>(TARGET_BOUNDARY_TABLE);
+		//set BDD search path
+		context->getDataBaseManager().setSearchPath(themeParameters->getValue(WORKING_SCHEMA).toString());
+		context->getDataBaseManager().addSchemaToSearchPath(themeParameters->getValue(REF_SCHEMA).toString());
+
+        //ome2::utils::setTableName<epg::params::EpgParametersS>(TARGET_BOUNDARY_TABLE);
+
         
 		logger->log(epg::log::INFO, "[START UNMATCHING PROCESS ] " + epg::tools::TimeTools::getTime());
         

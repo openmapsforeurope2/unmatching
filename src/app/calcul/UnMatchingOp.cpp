@@ -80,19 +80,18 @@ namespace app
 			std::string const geomName = epgParams.getValue(GEOM).toString();
 			std::string const countryCodeName = epgParams.getValue(COUNTRY_CODE).toString();
 			std::string const borderTableName = epgParams.getValue(TARGET_BOUNDARY_TABLE).toString();
-			std::string const tableName = context->getEpgParameters().getValue(EDGE_TABLE).toString();
-
+			std::string const edgeTableName = context->getEpgParameters().getValue(EDGE_TABLE).toString();
 			
 			// app parameters
 			params::ThemeParameters *themeParameters = params::ThemeParametersS::getInstance();
-			std::string refTableName = tableName + themeParameters->getValue(TABLE_REF_SUFFIX).toString();
+			std::string refTableName = themeParameters->getValue(TABLE_REF_NAME).toString();
 			std::string listAttrWName = themeParameters->getValue(LIST_ATTR_W).toString();
 			//std::string listAttrJsonName = themeParameters->getValue(LIST_ATTR_JSON).toString();
 			_setListToSetAttr(listAttrWName, _sAttrNameW, "/");
 			//_setListToSetAttr(listAttrJsonName, _sAttrNameJson, "/");
 
 			//--
-			_fsEdgeW = context->getDataBaseManager().getFeatureStore(tableName, idName, geomName);
+			_fsEdgeW = context->getDataBaseManager().getFeatureStore(edgeTableName, idName, geomName);
 			_fsRef= context->getDataBaseManager().getFeatureStore(refTableName, idName, geomName);
 
 			//--
@@ -123,10 +122,12 @@ namespace app
 			std::vector<std::string> vAttrNames;
 			featTypEdgW.getAttributeNames(vAttrNames);
 
+			boost::progress_display display(_fsEdgeW->numFeatures(), std::cout, "[ UNMATCHING ]\n");
+
 			ign::feature::FeatureIteratorPtr itEdgeW= _fsEdgeW->getFeatures(ign::feature::FeatureFilter());
 			while (itEdgeW->hasNext()) {
 				ign::feature::Feature fEdgW = itEdgeW->next();
-
+				++display;
 				std::string countryCodeEdgW = fEdgW.getAttribute(countryCodeName).toString();
 				if (countryCodeEdgW.find("#") == std::string::npos) {
 					idEdg2delete.insert(fEdgW.getId());
@@ -185,10 +186,13 @@ namespace app
 				}*/
 
 				_fsEdgeW->modifyFeature(fEdgW);
-			}
-			
-			for (std::set<std::string>::const_iterator sit = idEdg2delete.begin(); sit != idEdg2delete.end(); ++sit)
+			}	
+
+			boost::progress_display display2(idEdg2delete.size(), std::cout, "[ DELETE COUNTRY BEFORE UP ]\n");
+			for (std::set<std::string>::const_iterator sit = idEdg2delete.begin(); sit != idEdg2delete.end(); ++sit) {
+				++display2;
 				_fsEdgeW->deleteFeature(*sit);
+			}
 
 		}
 
