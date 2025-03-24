@@ -13,12 +13,6 @@
 #include <epg/tools/StringTools.h>
 #include <epg/tools/TimeTools.h>
 #include <epg/tools/FilterTools.h>
-// #include <epg/tools/geometry/simplifyLineString.h>
-#include <epg/tools/geometry/getArea.h>
-#include <epg/tools/geometry/ToValidGeometry.h>
-
-// IGN
-#include <ign/geometry/algorithm/SimplifyOpGeos.h>
 
 
 namespace app

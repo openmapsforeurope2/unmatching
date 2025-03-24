@@ -14,7 +14,7 @@
 
 //APP
 #include <app/params/ThemeParameters.h>
-#include <app/step/tools/initSteps.h>
+#include <app/calcul/UnMatchingOp.h>
 
 
 namespace po = boost::program_options;
@@ -26,29 +26,15 @@ int main(int argc, char *argv[])
 	std::string     logDirectory = "";
 	std::string     epgParametersFile = "";
 	std::string     themeParametersFile = "";
-	std::string     stepCode = "";
 	std::string     countryCode = "";
-	std::string     theme = "";
-	std::string     table = "";
 	bool            verbose = true;
-
-	epg::step::StepSuite< app::params::ThemeParametersS > stepSuite;
-    app::step::tools::initSteps(stepSuite);
-
-	std::ostringstream OperatorDetail;
-	OperatorDetail << "set step :" << std::endl
-		<< stepSuite.toString();
 
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
         ("c" , po::value< std::string >(&epgParametersFile)     , "conf file" )
-        ("T" , po::value< std::string >(&theme)                 , "theme" )
-        //("t" , po::value< std::string >(&table)                 , "table" )
         ("cc" , po::value< std::string >(&countryCode)          , "country code" )
-		("sp", po::value< std::string >(&stepCode), OperatorDetail.str().c_str())
     ;
-    stepCode = stepSuite.getStepsRange();
 
     //main log
     std::string     logFileName = "log.txt";
@@ -68,6 +54,9 @@ int main(int argc, char *argv[])
             std::cout << desc << std::endl;
             return 1;
         }
+
+        if( countryCode == "" )
+            IGN_THROW_EXCEPTION("missing country code");
 
         //parametres EPG
 		context->loadEpgParameters( epgParametersFile );
@@ -89,43 +78,32 @@ int main(int argc, char *argv[])
         //repertoire de travail
         context->setLogDirectory( logDirectory );
 
+        //epg logger
+        epg::log::EpgLogger* logger = epg::log::EpgLoggerS::getInstance();
+        // logger->setProdOfstream( logDirectory+"/unmatching.log" );
+        logger->setDevOfstream( context->getLogDirectory()+"/unmatching.log" );
+
+        //shape logger
+        epg::log::ShapeLogger* shapeLogger = epg::log::ShapeLoggerS::getInstance();
+	    shapeLogger->setDataDirectory( context->getLogDirectory()+"/shape" );
+
 		//theme parameters
 		themeParametersFile = context->getConfigParameters().getValue(THEME_PARAMETER_FILE).toString();
 		app::params::ThemeParameters* themeParameters = app::params::ThemeParametersS::getInstance();
         epg::params::tools::loadParams(*themeParameters, themeParametersFile);
-        if( countryCode != "" )
-            themeParameters->setParameter(COUNTRY_CODE_W, ign::data::String(countryCode));
-        /*if( theme != "tn" && theme != "hy" && theme != "au" && theme != "ib" )
-            IGN_THROW_EXCEPTION("unknown theme "+theme);
-        themeParameters->setParameter(THEME_W, ign::data::String(theme));
-        if( table == "" )
-            IGN_THROW_EXCEPTION("table name not defined");
-        themeParameters->setParameter(TABLE_W, ign::data::String(table));*/
 
         //info de connection db
-        context->loadEpgParameters( themeParameters->getValue(DB_CONF_FILE).toString() );
+        context->loadEpgParameters( themeParameters->getValue(DB_CONF_FILE).toString() );        
 
-        //epg logger
-        epg::log::EpgLogger* logger = epg::log::EpgLoggerS::getInstance();
-        // logger->setProdOfstream( logDirectory+"/au_merging.log" );
-        logger->setDevOfstream( context->getLogDirectory()+"/unmatching_countries.log" );
-
-        //shape logger
-        epg::log::ShapeLogger* shapeLogger = epg::log::ShapeLoggerS::getInstance();
-	    // shapeLogger->setDataDirectory( context->getLogDirectory()+"/shape" );
-
-        //set BDD search path
 		//set BDD search path
 		context->getDataBaseManager().setSearchPath(themeParameters->getValue(WORKING_SCHEMA).toString());
-		context->getDataBaseManager().addSchemaToSearchPath(themeParameters->getValue(REF_SCHEMA).toString());
-
-        //ome2::utils::setTableName<epg::params::EpgParametersS>(TARGET_BOUNDARY_TABLE);
+        context->getDataBaseManager().addSchemaToSearchPath(themeParameters->getValue(REF_SCHEMA).toString());
 
         
 		logger->log(epg::log::INFO, "[START UNMATCHING PROCESS ] " + epg::tools::TimeTools::getTime());
         
         //lancement du traitement
-		stepSuite.run(stepCode, verbose);
+		app::calcul::UnMatchingOp::Compute(countryCode, verbose);
 
 		logger->log(epg::log::INFO, "[END UNMATCHING PROCESS ] " + epg::tools::TimeTools::getTime());
 	

@@ -7,7 +7,7 @@ WORKDIR /usr/local/src/
 COPY libs libs
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/src/libs
 
-WORKDIR /usr/local/src/up_area_creator/
+WORKDIR /usr/local/src/unmatching/
 COPY package/*.deb .
 COPY config/*.ini ./config/
 
